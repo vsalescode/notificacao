@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Notificação Corporativa</title>
+    <style>
+        /* --- Reset & Base --- */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f4f6f8;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            color: #334155;
+            line-height: 1.6;
+        }
+
+        /* --- Container Principal --- */
+        .email-wrapper {
+            width: 100%;
+            background-color: #f4f6f8;
+            padding: 40px 0;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Sombra estilo Tailwind */
+            border: 1px solid #e2e8f0;
+        }
+
+        /* --- Header --- */
+        .email-header {
+            background-color: #1e293b;
+            padding: 30px 40px;
+            text-align: center;
+        }
+
+        .brand-name {
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        /* --- Conteúdo --- */
+        .email-body {
+            padding: 40px;
+        }
+
+        .headline {
+            margin-top: 0;
+            color: #0f172a; /* Slate 900 */
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            line-height: 1.3;
+        }
+
+        /* --- Card de Dados (Data Grid) --- */
+        .data-card {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .data-row:last-child {
+            border-bottom: none;
+        }
+
+        .data-label {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748b;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .data-value {
+            font-size: 15px;
+            color: #1e293b;
+            font-weight: 500;
+            flex: 2;
+            text-align: right;
+        }
+
+        /* --- Status Badges  --- */
+        .status-pill {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Cores de Status  */
+        .pill-PENDENTE { background-color: #fef3c7; color: #92400e; border: 1px solid #fcd34d; } /* Amber */
+        .pill-CONCLUIDA { background-color: #dcfce7; color: #166534; border: 1px solid #86efac; } /* Emerald */
+        .pill-CANCELADA, .pill-FALHA { background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; } /* Red */
+        .pill-ENVIADA { background-color: #e0f2fe; color: #075985; border: 1px solid #7dd3fc; } /* Sky Blue */
+
+        /* --- Descrição --- */
+        .description-section {
+            margin-top: 24px;
+        }
+
+        .description-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .description-text {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-left: 4px solid #3b82f6; /* Accent color */
+            padding: 16px;
+            border-radius: 4px;
+            color: #475569;
+            font-size: 15px;
+        }
+
+        /* --- Footer --- */
+        .email-footer {
+            background-color: #f8fafc;
+            padding: 24px;
+            text-align: center;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .footer-text {
+            font-size: 12px;
+            color: #94a3b8; /* Slate 400 */
+            margin-bottom: 8px;
+        }
+
+        .footer-link {
+            color: #64748b;
+            text-decoration: underline;
+        }
+
+        /* Mobile Responsive */
+        @media only screen and (max-width: 600px) {
+            .email-body { padding: 24px; }
+            .data-row { flex-direction: column; align-items: flex-start; }
+            .data-value { text-align: left; margin-top: 4px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="email-wrapper">
+    <div class="email-container">
+        <!-- Header: Foco na marca e sobriedade -->
+        <div class="email-header">
+            <h1 class="brand-name">VSALESCODE</h1>
+        </div>
+
+        <div class="email-body">
+            <!-- Headline clara -->
+            <h2 class="headline">Olá! Temos atualizações:</h2>
+            <p style="color: #475569; margin-bottom: 24px;">
+                O sistema registrou uma alteração recente na tarefa vinculada à sua conta <strong th:text="${emailUsuario}"></strong>.
+            </p>
+
+            <!-- Card Principal: Design Limpo e Estruturado -->
+            <div class="data-card">
+                <!-- Nome da Tarefa -->
+                <div class="data-row">
+                    <span class="data-label">Tarefa:&nbsp;</span>
+                    <span class="data-value" th:text="${nomeTarefa}"></span>
+                </div>
+
+                <!-- ID (Código) -->
+                <div class="data-row">
+                    <span class="data-label">ID de Referência:&nbsp;</span>
+                    <span class="data-value" style="font-family: 'Courier New', monospace;" th:text="${id}"></span>
+                </div>
+
+                <!-- Data Formatada -->
+                <div class="data-row">
+                    <span class="data-label">Data Agendada:&nbsp;</span>
+                    <span class="data-value"
+                          th:text="${#temporals.format(dataEvento, 'dd/MM/yyyy HH:mm')} ?: ${dataEvento}">
+                        30/01/2026 14:00
+                    </span>
+                </div>
+
+                <!-- Status com Badge "Pill" -->
+                <div class="data-row">
+                    <span class="data-label">Status Atual:&nbsp;</span>
+                    <span class="data-value">
+                        <span class="status-pill"
+                              th:classappend="'pill-' + ${statusNotificacaoEnum}"
+                              th:text="${statusNotificacaoEnum}"></span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Seção de Descrição  -->
+            <div class="description-section">
+                <span class="description-label">Detalhes da Solicitação</span>
+                <div class="description-text" th:text="${descricao}">
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="email-footer">
+            <p class="footer-text">
+                &copy; <span th:text="${#dates.year(#dates.createNow())}">2026</span> VSALESCODE. Todos os direitos reservados.
+            </p>
+            <p class="footer-text">
+                Você recebeu este e-mail porque está cadastrado em nossa plataforma.<br>
+                <a href="#" class="footer-link">Preferências de notificação</a> | <a href="#" class="footer-link">Política de Privacidade</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
