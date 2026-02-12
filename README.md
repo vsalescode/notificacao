@@ -1,125 +1,66 @@
-# 📧 Notificação – Microserviço de Notificação
+# 📧 Serviço de Notificação (Notification Service)
 
-![Java](https://img.shields.io/badge/Java-17+-red)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.x-brightgreen)
-![Email](https://img.shields.io/badge/Service-Email-blue)
-![Thymeleaf](https://img.shields.io/badge/Template-Thymeleaf-green)
-![SMTP](https://img.shields.io/badge/Protocol-SMTP-orange)
-![Build](https://img.shields.io/badge/Build-Maven-blueviolet)
-![Status](https://img.shields.io/badge/Status-Completo-success)
+O **"Carteiro" do ecossistema**.\
+Um microsserviço leve e stateless focado exclusivamente em converter
+dados brutos em comunicações visuais elegantes e enviá-las via SMTP.
 
-Microserviço responsável pelo **envio de notificações por e-mail** dentro da arquitetura de **agendamento de tarefas**, utilizando **templates HTML com Thymeleaf**, integração via **REST** e foco em **baixo acoplamento** e **responsabilidade única**.
+------------------------------------------------------------------------
 
-Este serviço é acionado por outros microserviços (principalmente o **Agendador**) para notificar usuários sobre **eventos, atualizações de tarefas e mudanças de status**.
+## 🚀 Visão Geral
 
----
+Diferente dos outros serviços, este componente **não possui banco de
+dados**.\
+Ele atua como um **Worker passivo**, aguardando requisições HTTP
+contendo dados de tarefas, processando essas informações dentro de um
+template HTML responsivo e realizando o envio do e-mail.
 
-## 🧱 Papel na Arquitetura
+------------------------------------------------------------------------
 
-```text
-[BFF]
-  ├── Usuario Service (Autenticação / JWT)
-  ├── Agendador Service (Eventos de tarefas)
-  ├── Notificacao Service (Este serviço)
-  └── Comunicação via REST / OpenFeign
-```
+## ✅ Principais Funcionalidades
 
-- Serviço **stateless**
-- Não possui persistência própria
-- Responsável apenas pelo envio de notificações
-- Preparado para evolução para mensageria assíncrona
+-   **Renderização Server-Side:** Uso do Thymeleaf para injetar dados
+    dinâmicos em templates HTML.
+-   **E-mails Responsivos:** Template `notificacao.html` com CSS inline
+    compatível com Gmail, Outlook e Apple Mail.
+-   **Integração SMTP:** Compatível com Gmail, AWS SES, SendGrid e
+    outros provedores.
+-   **Tratamento de Erros:** Captura falhas de envio e retorna exceções
+    tratadas.
 
----
+------------------------------------------------------------------------
 
-## 📌 Funcionalidades
+## 🛠️ Tecnologias Utilizadas
 
-- Envio de e-mails transacionais
-- Templates HTML profissionais com Thymeleaf
-- Notificação baseada em eventos de tarefas
-- Padronização visual corporativa
-- Tratamento centralizado de erros de envio
+-   Java 17
+-   Spring Boot 3
+-   Spring Boot Starter Mail (JavaMailSender)
+-   Thymeleaf
+-   Lombok
 
----
+------------------------------------------------------------------------
 
-## 🚀 Endpoint
+## ⚙️ Configuração SMTP
 
-| Método | Endpoint | Descrição |
-|------|--------|---------|
-| POST | /email | Enviar notificação de tarefa |
+O serviço roda na porta **8082**.
 
-### Exemplo de Payload
+Configure o arquivo:
 
-```json
-{
-  "id": "abc123",
-  "nomeTarefa": "Reunião com cliente",
-  "descricao": "Discutir próximos passos do projeto",
-  "emailUsuario": "usuario@email.com",
-  "dataEvento": "30-01-2026 14:00:00",
-  "statusNotificacaoEnum": "PENDENTE"
-}
-```
+    src/main/resources/application.yaml
 
----
+### Exemplo de Configuração (Gmail)
 
-## 🧩 Estrutura Interna
+> ⚠️ Utilize **Senha de App** e nunca sua senha normal.
 
-### 📦 Camadas
+``` yaml
+server:
+  port: 8082
 
-- **Controller**
-  - Exposição de endpoint REST
-  - Recebimento de eventos de notificação
-
-- **Service**
-  - Construção do e-mail
-  - Processamento do template HTML
-  - Envio via SMTP
-
-- **DTO**
-  - Objeto de integração entre microserviços
-
-- **Templates**
-  - HTML responsivo com Thymeleaf
-
----
-
-## ✉️ Template de E-mail
-
-- Desenvolvido em **HTML responsivo**
-- Layout corporativo e profissional
-- Uso de:
-  - Badges de status
-  - Datas formatadas
-  - Identidade visual padronizada
-
-Compatível com clientes de e-mail modernos (Gmail, Outlook, etc).
-
----
-
-## 🔐 Segurança
-
-- Serviço interno (não exposto diretamente ao usuário final)
-- Acesso esperado apenas por:
-  - Agendador Service
-  - BFF
-- Pode ser protegido via:
-  - Rede interna
-  - Gateway
-  - Autenticação por token (evolução futura)
-
----
-
-## ⚙️ Configurações
-
-Exemplo de configuração SMTP:
-
-```yaml
 spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: email.exemplo@gmail.com
-    password: senha-ficticia-aqui
+    username: seu-email@gmail.com
+    password: sua-senha-de-app
     protocol: smtp
     properties:
       mail:
@@ -128,57 +69,87 @@ spring:
           starttls:
             enable: true
             required: true
+          connectiontimeout: 5000
+          timeout: 3000
+          writetimeout: 5000
 
 envio:
   email:
-    remetente: email.exemplo@gmail.com
-    nomeRemetente: Sistema de Notificações
+    remetente: seu-email@gmail.com
+    nomeRemetente: Sistema de Tarefas
 ```
 
----
+------------------------------------------------------------------------
 
-## 🛠️ Tecnologias
+## 🔌 Endpoint
 
-- Java 17+
-- Spring Boot
-- Spring Mail
-- Thymeleaf
-- JavaMailSender
-- Lombok
-- Maven
+### 📤 Enviar E-mail de Notificação
 
----
+**POST** `/email`
 
-## ▶️ Executando Localmente
+### Corpo da Requisição
 
-```bash
-mvn clean install
+``` json
+{
+  "id": "65b2f...a1b2",
+  "nomeTarefa": "Reunião de Arquitetura",
+  "descricao": "Discutir a implementação do padrão Saga.",
+  "emailUsuario": "destinatario@exemplo.com",
+  "dataEvento": "30-01-2026 14:00:00",
+  "statusNotificacaoEnum": "PENDENTE"
+}
+```
+
+### Respostas
+
+-   **200 OK** → E-mail enviado com sucesso
+-   **500 Internal Server Error** → Falha SMTP ou erro de template
+
+------------------------------------------------------------------------
+
+## 🎨 Template HTML
+
+Arquivo:
+
+    src/main/resources/templates/notificacao.html
+
+### Variáveis Thymeleaf
+
+  Variável                     Descrição
+  ---------------------------- ---------------------------------
+  `${nomeTarefa}`              Título da tarefa
+  `${dataEvento}`              Data e hora formatada
+  `${descricao}`               Detalhes da tarefa
+  `${statusNotificacaoEnum}`   Define a cor da badge de status
+
+O layout utiliza um **card centralizado**, sombras suaves e tipografia
+moderna (Helvetica/Arial) para manter aparência profissional.
+
+------------------------------------------------------------------------
+
+## ▶️ Como Executar
+
+### Pré-requisitos
+
+-   Java 17+
+-   Maven
+
+### Executar
+
+``` bash
 mvn spring-boot:run
 ```
 
-Serviço disponível em:
+O serviço ficará disponível em:
 
-```
-http://localhost:8082
-```
+    http://localhost:8082
 
----
+------------------------------------------------------------------------
 
-## 🛣️ Roadmap
+## 👨‍💻 Autor
 
-- ✅ Envio de e-mails
-- ✅ Templates HTML com Thymeleaf
-- 🔜 Swagger
+Desenvolvido por **João Victor**
 
----
-
-## 📌 Observações
-
-Este microserviço segue o princípio de **Single Responsibility**, mantendo o ecossistema desacoplado e preparado para evolução futura, como:
-
-- envio de SMS
-- push notifications
-- mensageria assíncrona
-
-Projeto ideal para, **arquitetura real** e **cenários corporativos**.
+🔗 [LinkedIn](https://www.linkedin.com/in/vsalescode/)
+🌐 [Portfólio](https://portfolio-vsalescode.vercel.app/)
 
