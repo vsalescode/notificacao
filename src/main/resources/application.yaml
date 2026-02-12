@@ -2,8 +2,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: email.exemplo@gmail.com
-    password: senha-ficticia-aqui
+    username: email@example.com
+    password: senha-google-apps
     protocol: smtp
     properties:
       mail:
@@ -21,7 +21,7 @@ thymeleaf:
 
 envio:
   email:
-    remetente: email.exemplo@gmail.com
+    remetente: email@example.com
     nomeRemetente: Sistema de Notificações
 
 server:
